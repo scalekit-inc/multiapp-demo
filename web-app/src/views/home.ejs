@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Example Web App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <style>
+      :root {
+        --bg: #f8fafc;        /* page background */
+        --card: #ffffff;     /* cards */
+        --muted: #64748b;    /* secondary text */
+        --text: #0f172a;     /* primary text */
+        --accent: #00699f;   /* buttons / links */
+        --success: #16a34a;
+        --border: #e5e7eb;
+      }
+
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, sans-serif;
+        background: linear-gradient(180deg, #f8fafc, #f8fafc);
+        color: var(--text);
+      }
+
+      .container {
+        max-width: 920px;
+        margin: 48px auto;
+        padding: 0 20px;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 32px;
+      }
+
+      header h1 {
+        font-size: 22px;
+        font-weight: 600;
+        margin: 0;
+      }
+
+      .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 12px;
+        background: rgba(22, 163, 74, 0.1);
+        color: var(--success);
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 500;
+      }
+
+      .status::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        background: var(--success);
+        border-radius: 50%;
+      }
+
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 24px;
+      }
+
+      .card h2 {
+        margin: 0 0 12px;
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      .actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 14px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--bg);
+        color: var(--text);
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.15s ease;
+      }
+
+      .button.primary {
+        background: var(--accent);
+        color: #ffffff;
+        border-color: transparent;
+      }
+
+      .button:hover {
+        transform: translateY(-1px);
+        opacity: 0.95;
+      }
+
+      .button.danger {
+        border-color: #7f1d1d;
+        color: #b70b0b;
+      }
+
+      pre {
+        margin: 0;
+        padding: 14px;
+        background: var(--bg);
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        overflow-x: auto;
+        font-size: 12px;
+        line-height: 1.6;
+        color: #030303;
+      }
+
+      .meta {
+        display: grid;
+        gap: 12px;
+      }
+
+      .meta-item {
+        padding: 12px;
+        border-radius: 8px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        min-width: 0;
+        overflow: hidden;
+        word-break: break-all;
+      }
+
+      .meta-item span {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+        margin-bottom: 6px;
+      }
+
+      .meta-item .value {
+        display: block;
+        width: 100%;
+        white-space: normal !important;
+        overflow-wrap: anywhere !important;
+        word-break: break-all !important;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 12.5px;
+        color: #0f172a;
+      }
+
+      .toast {
+        position: fixed;
+        left: 50%;
+        bottom: 22px;
+        transform: translateX(-50%) translateY(12px);
+        opacity: 0;
+        pointer-events: none;
+
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: rgba(248, 250, 252, 0.9);
+        backdrop-filter: blur(10px);
+
+        font-size: 33px;
+        color: var(--text);
+        transition: opacity 0.25s ease, transform 0.25s ease;
+      }
+
+      .toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+
+      .toast.success {
+        border-color: rgba(34, 197, 94, 0.35);
+      }
+
+      .toast.error {
+        border-color: rgba(239, 68, 68, 0.45);
+      }
+
+
+
+      footer {
+        margin-top: 40px;
+        text-align: center;
+        font-size: 12px;
+        color: var(--muted);
+      }
+    </style>
+
+    <script>
+      function showToast(message, type = "success") {
+        toastEl.textContent = message;
+        toastEl.classList.remove("show", "success", "error");
+        toastEl.classList.add("show", type);
+
+        clearTimeout(window.__toastTimer);
+        window.__toastTimer = setTimeout(
+          () => toastEl.classList.remove("show"),
+          3000
+        );
+      }
+
+      async function refreshNow() {
+        refreshBtn.disabled = true;
+        refreshBtn.textContent = "Refreshing...";
+
+        try {
+          const res = await fetch("/token/refresh", { method: "POST" });
+          const data = await res.json().catch(() => ({}));
+
+          // ❌ Refresh failed → toast + delayed redirect
+          if (!res.ok || data.ok === false) {
+            showToast(
+              data?.error || "Token refresh failed. Please login again.",
+              "error"
+            );
+
+            setTimeout(() => {
+              window.location.replace(data.redirect_to || "/");
+            }, 3000);
+
+            return;
+          }
+
+          // ✅ Success
+          showToast("Token refreshed", "success");
+          setTimeout(() => window.location.reload(), 400);
+        } catch (e) {
+          showToast("Refresh failed (network)", "error");
+
+          setTimeout(() => {
+            window.location.replace("/");
+          }, 3000);
+        } finally {
+          refreshBtn.disabled = false;
+          refreshBtn.textContent = "Refresh token";
+        }
+      }
+
+      refreshBtn.addEventListener("click", refreshNow);
+    </script>
+
+
+  </head>
+
+  <body>
+    <div class="container">
+      <header>
+        <h1>Example Web App</h1>
+        <div class="status">Logged in</div>
+      </header>
+
+      <!-- Primary actions -->
+      <div class="card">
+        <h2>Actions</h2>
+        <div class="actions">
+          <button id="refreshBtn" class="button primary" type="button">Refresh token</button>
+          <a class="button danger" href="/logout">Logout</a>
+        </div>
+      </div>
+
+      <!-- Token info -->
+      <div class="card">
+        <h2>Access Token (decoded)</h2>
+        <pre><%= JSON.stringify(tokens.access_payload, null, 2) %></pre>
+      </div>
+
+      <div class="card">
+        <h2>Token Metadata</h2>
+        <pre><%= JSON.stringify(
+          { expires_at: tokens.expires_at, obtained_at: tokens.obtained_at },
+          null,
+          2
+        ) %></pre>
+      </div>
+
+      <!-- Debug -->
+      <div class="card">
+        <h2>Debug Information</h2>
+        <div class="meta">
+          <div class="meta-item">
+            <span>Auth Domain</span>
+            <div class="value"><%= issuerBaseUrl %></div>
+          </div>
+
+          <div class="meta-item">
+            <span>Client ID</span>
+            <div class="value"><%= clientId %></div>
+          </div>
+
+          <div class="meta-item">
+            <span>Redirect URI</span>
+            <div class="value"><%= redirectUri %></div>
+          </div>
+
+          <div class="meta-item">
+            <span>Scopes</span>
+            <div class="value"><%= scopes %></div>
+          </div>
+
+          <div class="meta-item">
+            <span>OIDC Logout Support</span>
+            <div class="value"><%= tokens.id_token ? "Yes" : "No" %></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+      <script>
+        const toastEl = document.getElementById("toast");
+        const refreshBtn = document.getElementById("refreshBtn");
+
+        function showToast(message, type = "success") {
+          toastEl.textContent = message;
+          toastEl.classList.remove("show", "success", "error");
+          toastEl.classList.add("show", type);
+          clearTimeout(window.__toastTimer);
+          window.__toastTimer = setTimeout(() => toastEl.classList.remove("show"), 10000);
+        }
+
+        refreshBtn?.addEventListener("click", refreshNow);
+      </script>
+
+  </body>
+</html>
