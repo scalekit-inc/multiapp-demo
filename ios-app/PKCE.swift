@@ -1,7 +1,7 @@
 //
 //  PKCE.swift
 //
-//  Created by Akshay Parihar on 23/01/26.
+//  Created by Scalekit on 23/01/26.
 //
 
 import Foundation

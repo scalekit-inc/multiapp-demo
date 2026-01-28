@@ -25,13 +25,6 @@ npm install
 npm start
 ```
 
-## Build DMG (local)
-```bash
-npm run dist:mac
-```
-
-Artifacts appear under `dist/`.
-
 ### Gatekeeper note
 Unsigned local DMGs/apps can trigger warnings:
 - right click the app → Open
