@@ -173,11 +173,6 @@ export default function Home({ tokens, setTokens }) {
         }
       } catch (e) {
         console.error(e);
-        if (tokens?.access_token || tokens?.refresh_token) {
-          handleRefreshFailure("❌ Session expired. Reloading…");
-        } else {
-          setTokens(null);
-        }
         handleRefreshFailure("❌ Session expired. Redirecting…");
       }
     })();
