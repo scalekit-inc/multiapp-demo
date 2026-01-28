@@ -1,6 +1,5 @@
 //
-//  DeskApp.swift
-//  Desk
+//  ExampleApp.swift
 //
 //  Created by Akshay Parihar on 23/01/26.
 //
@@ -8,7 +7,7 @@
 import SwiftUI
 
 @main
-struct DeskApp: App {
+struct ExampleApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
