@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Logged out · Example Web App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <style>
+      :root {
+        --bg: #f8fafc;        /* page background */
+        --card: #ffffff;     /* cards */
+        --muted: #64748b;    /* secondary text */
+        --text: #0f172a;     /* primary text */
+        --accent: #00699f;   /* buttons / links */
+        --success: #16a34a;
+        --border: #e5e7eb;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, sans-serif;
+        background: linear-gradient(180deg, #f8fafc, #f8fafc);
+        color: var(--text);
+      }
+
+      .card {
+        max-width: 480px;
+        width: 100%;
+        margin: 20px;
+        padding: 32px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        text-align: center;
+      }
+
+      .icon {
+        width: 56px;
+        height: 56px;
+        margin: 0 auto 16px;
+        border-radius: 50%;
+        background: rgba(22, 163, 74, 0.12);
+        color: var(--success);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 26px;
+      }
+
+      h1 {
+        margin: 0 0 8px;
+        font-size: 20px;
+        font-weight: 600;
+      }
+
+      p {
+        margin: 0 0 24px;
+        font-size: 14px;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      .actions {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .button {
+        padding: 10px 16px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--bg);
+        color: var(--text);
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.15s ease;
+      }
+
+      .button.primary {
+        background: var(--accent);
+        color: #ffffff;
+        border-color: transparent;
+      }
+
+      .button:hover {
+        transform: translateY(-1px);
+        opacity: 0.95;
+      }
+
+      footer {
+        margin-top: 24px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="card">
+      <div class="icon">✓</div>
+
+      <h1>You’re logged out</h1>
+      <p>
+        You’ve been signed out of Example Web App and the central authentication session
+        session.
+      </p>
+
+      <div class="actions">
+        <a href="/login" class="button primary">Login again</a>
+        <a href="/" class="button">Go to home</a>
+      </div>
+    </div>
+  </body>
+</html>

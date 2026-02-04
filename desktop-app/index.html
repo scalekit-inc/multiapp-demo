@@ -1,0 +1,172 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Example Desktop App</title>
+    <style>
+      :root {
+        --bg: #f6f8fb;
+        --text: #0f172a;
+        --muted: #64748b;
+        --border: #e2e8f0;
+        --successBg: #e9f8ee;
+        --successText: #15803d;
+        --neutralBg: #eef2f6;
+        --neutralText: #64748b;
+      }
+
+      body { font-family: system-ui, -apple-system, sans-serif; padding: 16px; color: var(--text); background: white; }
+      button { margin-right: 8px; margin-bottom: 8px; }
+      pre { background: #f6f6f6; padding: 12px; border-radius: 8px; overflow: auto; }
+      .muted { color: #666; }
+      code { background: #f0f0f0; padding: 2px 6px; border-radius: 6px; }
+
+      .topRow {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .statusPill {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        font-weight: 800;
+        font-size: 14px;
+        border: 1px solid #dbeafe;
+        background: var(--neutralBg);
+        color: var(--neutralText);
+        user-select: none;
+      }
+
+      .statusDot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--neutralText);
+      }
+
+      .statusPill.loggedIn {
+        background: var(--successBg);
+        color: var(--successText);
+      }
+      .statusPill.loggedIn .statusDot {
+        background: #16a34a;
+      }
+
+      .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+
+      button[disabled] {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="topRow">
+      <h2 style="margin:0;">Example Desktop App (mac)</h2>
+
+      <span id="statusPill" class="statusPill">
+        <span id="statusDot" class="statusDot"></span>
+        <span id="statusText">Checking session...</span>
+      </span>
+    </div>
+
+    <p class="muted">Redirect URI: <code>http://127.0.0.1:53682/callback</code></p>
+
+    <div class="actions">
+      <button id="login">Login</button>
+      <button id="refresh">Refresh</button>
+      <button id="tokens">Show Tokens</button>
+      <button id="logout">Logout</button>
+    </div>
+
+    <pre id="out">Ready.</pre>
+
+    <script>
+      const { ipcRenderer } = require("electron");
+
+      const out = document.getElementById("out");
+      const btnLogin = document.getElementById("login");
+      const btnRefresh = document.getElementById("refresh");
+      const btnTokens = document.getElementById("tokens");
+      const btnLogout = document.getElementById("logout");
+
+      const statusPill = document.getElementById("statusPill");
+      const statusText = document.getElementById("statusText");
+
+      function print(x) { out.textContent = JSON.stringify(x, null, 2); }
+
+      function setLoggedInUI(isLoggedIn) {
+        statusPill.classList.toggle("loggedIn", Boolean(isLoggedIn));
+        statusText.textContent = isLoggedIn ? "Logged in" : "Logged out";
+
+        // Hide login when logged in (your ask)
+        btnLogin.style.display = isLoggedIn ? "none" : "inline-block";
+
+        // Optional hardening: disable actions if logged out
+        btnRefresh.disabled = !isLoggedIn;
+        btnTokens.disabled = !isLoggedIn;
+        btnLogout.disabled = !isLoggedIn;
+      }
+
+      async function syncSession() {
+        statusText.textContent = "Checking session...";
+        try {
+          const resp = await ipcRenderer.invoke("get_tokens");
+
+          const ok = resp && resp.ok === true && resp.tokens && resp.tokens.access_token;
+          setLoggedInUI(Boolean(ok));
+
+          // If you want, don't overwrite output on startup:
+          // print(resp);
+        } catch (e) {
+          setLoggedInUI(false);
+          print({ ok: false, error: String(e) });
+        }
+      }
+
+      btnLogin.onclick = async () => {
+        const r = await ipcRenderer.invoke("login");
+        print(r);
+        // stays logged out until callback returns + status event arrives
+      };
+
+      btnRefresh.onclick = async () => {
+        const r = await ipcRenderer.invoke("refresh");
+        print(r);
+        await syncSession();
+      };
+
+      btnTokens.onclick = async () => {
+        const r = await ipcRenderer.invoke("get_tokens");
+        print(r);
+        setLoggedInUI(Boolean(r?.ok && r?.tokens?.access_token));
+      };
+
+      btnLogout.onclick = async () => {
+        const r = await ipcRenderer.invoke("logout");
+        print(r);
+        await syncSession();
+      };
+
+      // main process pushes updates here (login complete / errors)
+      ipcRenderer.on("status", async (_, msg) => {
+        print(msg);
+
+        // If main sends ok:true after login, reflect it immediately
+        const ok = msg?.ok === true;
+        if (ok) setLoggedInUI(true);
+
+        // If main sends ok:false (eg verification failed and you clear tokens), re-check
+        if (msg?.ok === false) await syncSession();
+      });
+
+      // init
+      syncSession();
+    </script>
+  </body>
+</html>
