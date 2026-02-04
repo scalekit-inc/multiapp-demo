@@ -16,7 +16,7 @@ Electron desktop app that:
 ## Configure client id
 Edit `config.json`:
 ```json
-{ "client_id": "spac_..." }
+{ "client_id": "ntvc_..." }
 ```
 
 ## Run (dev)
