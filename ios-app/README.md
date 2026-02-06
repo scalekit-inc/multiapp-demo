@@ -19,3 +19,4 @@ let clientId = "ntvc_..."
 ## Notes
 - The redirect scheme is `exampleappmobile`.
 - Update `issuerBaseURL` and `clientId` in `AuthService.swift`.
+- Xcode's built-in simulator doesn't allow shared cookie storage with your mac's browser storage, so to experience seamless sso with mobile, you can deploy the app on your real iPhone or iPad device and check it out.
