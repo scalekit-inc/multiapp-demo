@@ -15,7 +15,7 @@ A browser-only Single Page Application that demonstrates:
 
 ## Scalekit client config
 - Redirect URI: `http://localhost:5174/callback`
-- Initiate Login URI: `http://localhost:5174/dashboard` // it doesn't take effect yet, any entrypoint for your app should be sufficient
+- Initiate Login URI: `http://localhost:5174/dashboard` // this is required for auth flows to work without intruption.
 - Post logout redirect URI: `http://localhost:5174/logged-out`
 - Scopes should include: `openid email profile offline_access`
 - PKCE: Required (S256)

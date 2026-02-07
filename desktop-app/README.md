@@ -9,7 +9,7 @@ Electron desktop app that:
 
 ## Scalekit client setup (Desktop/Native client)
 - Redirect URI: `http://127.0.0.1:53682/callback`
-- Initiate Login URI: `http://127.0.0.1:53682/dashboard` // it doesn't take effect yet, any entrypoint for your app should be sufficient
+- Initiate Login URI: `http://127.0.0.1:53682/dashboard` // this is required for auth flows to work without intruption.
 - Post-logout redirect URI: `http://127.0.0.1:53682/logged-out`
 - Scopes: `openid email profile offline_access`
 - Enforce PKCE

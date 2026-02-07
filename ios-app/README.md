@@ -5,7 +5,7 @@ It uses `ASWebAuthenticationSession` for OAuth Authorization Code + PKCE.
 
 ## Scalekit client setup (Mobile/Native client)
 - Redirect URI: `exampleappmobile://callback`
-- Initiate Login URI: `exampleappmobile://callback` (any app entrypoint is fine)
+- Initiate Login URI: `exampleappmobile://callback` // this is required for auth flows to work without intruption.
 - Post-logout redirect URI: `exampleappmobile://logged-out`
 - Scopes: `openid email profile offline_access`
 - Enforce PKCE
