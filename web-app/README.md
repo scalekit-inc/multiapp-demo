@@ -12,7 +12,7 @@ An Express + EJS webapp that demonstrates:
 
 ## Scalekit client config
 - Redirect URI: `http://localhost:8081/callback`
-- Initiate Login URI: `http://localhost:8081/dashboard` // it doesn't take effect yet, any entrypoint for your app should be sufficient
+- Initiate Login URI: `http://localhost:8081/dashboard` // this is required for auth flows to work without intruption.
 - Post logout redirect URI: `http://localhost:8081/logged-out`
 - Scopes should include: `openid email profile offline_access`
 
